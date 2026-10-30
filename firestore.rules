@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // tables, their seats and quick phrases: any signed-in player (anonymous sign-in is enough)
+    match /tables/{rest=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

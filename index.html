@@ -1,0 +1,1253 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c1412">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<script>window.FIREBASE_CONFIG={"apiKey": "AIzaSyAFUN4E7STHs6k-8-B3FdBumyMsqrGqvtU", "authDomain": "bound-f191a.firebaseapp.com", "projectId": "bound-f191a", "storageBucket": "bound-f191a.firebasestorage.app", "messagingSenderId": "523243930970", "appId": "1:523243930970:web:81fd2edd5089066bf9df63"};</script>
+</head>
+<body>
+<title>فيها ولا فمصريها</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap">
+<style>
+/* Layout: a dark majlis room; a rimmed felt table fills the middle with four seats on its edges,
+   a stitched "الميدان" box in the centre for played cards, and each team's trick pile in front of the
+   teammate who took their first trick. Score plates on top, action bar and fanned hand below. */
+:root{
+  --room:#0c1412; --felt:#13493f; --felt-deep:#0a2a24; --rim:#4a2d18;
+  --ink:#f4ecda; --muted:#a9bfb5; --gold:#e3ad4b; --sadu:#b8282f; --them:#d0574f;
+  --card:#fbf6ea; --card-ink:#1b1c1e;
+  --panel:rgba(5,20,17,.72); --line:rgba(244,236,218,.15);
+  --f-display:"Reem Kufi","Geeza Pro","Segoe UI",sans-serif;
+  --f-body:"IBM Plex Sans Arabic","Geeza Pro","Segoe UI",Tahoma,sans-serif;
+  --cw:clamp(44px,12vw,76px); --ch:calc(var(--cw)*1.42);
+  color-scheme:dark;
+}
+/* table choices: each swaps the room, felt, rim and panel tint */
+:root[data-table="navy"]{--room:#0a0f18;--felt:#1d4673;--felt-deep:#0b1b31;--rim:#2b3140;--panel:rgba(6,14,28,.74)}
+:root[data-table="maroon"]{--room:#150b0c;--felt:#74222d;--felt-deep:#2c0b11;--rim:#3d2516;--panel:rgba(30,6,10,.74)}
+:root[data-table="wood"]{--room:#120c07;--felt:#8a5a30;--felt-deep:#3a220f;--rim:#2a180a;--panel:rgba(30,16,6,.74)}
+:root[data-table="charcoal"]{--room:#0a0b0c;--felt:#41484c;--felt-deep:#16191b;--rim:#0f1112;--panel:rgba(10,12,13,.78)}
+html,body{height:100%}
+body{background:var(--room);background:radial-gradient(90% 70% at 50% 40%,color-mix(in srgb,var(--room) 70%,var(--felt-deep)) 0%,var(--room) 100%);color:var(--ink);font-family:var(--f-body);overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font-family:inherit}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.app{height:100%;display:flex;flex-direction:column;max-width:980px;margin:0 auto}
+
+/* header */
+.top{display:flex;align-items:center;gap:10px 14px;padding-block:10px 8px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:700;font-size:22px;color:var(--gold);margin-inline-end:auto;line-height:1}
+.brand small{display:block;font-family:var(--f-body);font-weight:400;font-size:11px;color:var(--muted);margin-top:4px}
+.scores{display:flex;gap:8px}
+.team{display:grid;grid-template-columns:auto auto;align-items:center;gap:2px 10px;padding:6px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--line);min-width:118px}
+.team .tn{font-size:12px;font-weight:700}
+.team .tn small{display:block;font-weight:400;color:var(--muted);font-size:10px}
+.team b{font-family:var(--f-display);font-size:24px;line-height:1;font-variant-numeric:tabular-nums;text-align:end}
+.team .meter{grid-column:1/-1;height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
+.team .meter i{display:block;height:100%;width:0;border-radius:2px;transition:width .5s ease}
+.team.us .tn,.team.us b{color:var(--gold)} .team.us .meter i{background:var(--gold)}
+.team.them .tn,.team.them b{color:var(--them)} .team.them .meter i{background:var(--them)}
+.tools{display:flex;gap:6px}
+.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}
+.ghost:hover{color:var(--ink);border-color:var(--muted)}
+.ghost.exit{color:var(--them);border-color:rgba(208,87,79,.45)}
+.ghost.exit:hover{color:var(--them);border-color:var(--them)}
+.pair .primary.danger{background:var(--them);color:#1b1206}
+.info{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;font-size:12.5px;padding-block:4px 8px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--panel);color:var(--ink)}
+.chip.mode{color:var(--gold);font-weight:700;border-color:rgba(227,173,75,.45)}
+
+/* table */
+.wrap{flex:1;min-height:0;display:flex;padding-block:2px}
+.table{position:relative;flex:1;border-radius:34px;border:10px solid var(--rim);
+  background:radial-gradient(110% 85% at 50% 45%,var(--felt) 0%,var(--felt-deep) 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),inset 0 0 70px rgba(0,0,0,.5),0 14px 34px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.6)}
+:root[data-table="wood"] .table{background:
+  repeating-linear-gradient(92deg,rgba(0,0,0,.07) 0 2px,transparent 2px 9px,rgba(255,255,255,.035) 9px 11px,transparent 11px 23px),
+  radial-gradient(110% 85% at 50% 45%,var(--felt) 0%,var(--felt-deep) 100%)}
+.table::before{content:"";position:absolute;inset:7px;border-radius:24px;border:1.5px dashed rgba(244,236,218,.13);pointer-events:none}
+.table::after{content:"";position:absolute;inset:-10px;border-radius:34px;pointer-events:none;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.1),inset 0 -2px 0 rgba(0,0,0,.35)}
+
+/* seats */
+.seat{position:absolute;display:flex;flex-direction:column;align-items:center;gap:5px;z-index:3}
+.seat.s2{top:12px;left:50%;transform:translateX(-50%)}
+.seat.s1{right:10px;top:43%;transform:translateY(-50%)}
+.seat.s3{left:10px;top:43%;transform:translateY(-50%)}
+.seat.s0{bottom:12px;left:50%;transform:translateX(-50%)}
+.who{display:flex;align-items:center;gap:6px;padding:3px 10px 3px 4px;border-radius:999px;background:var(--panel);border:1px solid var(--line);white-space:nowrap;font-size:13px;font-weight:500}
+.seat.s1 .who,.seat.s3 .who{flex-direction:column;padding:6px 8px;border-radius:14px;gap:3px}
+.avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:15px;
+  background:var(--felt-deep);border:2px solid var(--gold);color:var(--gold)}
+.seat.them .avatar{border-color:var(--them);color:var(--them)}
+.seat.turn .who{border-color:var(--gold);box-shadow:0 0 0 3px rgba(227,173,75,.22)}
+.seat.turn .avatar{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 5px rgba(227,173,75,.25)}}
+.tag{font-size:10px;color:#1b1206;background:var(--gold);border-radius:4px;padding:0 4px;font-weight:700}
+.backs{display:flex}
+.seat.s1 .backs,.seat.s3 .backs{flex-direction:column}
+.back{width:18px;height:26px;border-radius:3px;border:1px solid rgba(255,255,255,.55);
+  background:repeating-linear-gradient(45deg,var(--sadu) 0 3px,#3a0d10 3px 6px);box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.backs .back+.back{margin-left:-11px}
+.seat.s1 .backs .back+.back,.seat.s3 .backs .back+.back{margin-left:0;margin-top:-19px}
+.bubble{background:var(--ink);color:#1b1206;font-weight:700;font-size:13px;padding:3px 10px;border-radius:10px;white-space:nowrap;animation:pop .25s ease-out;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+
+/* الميدان: the box cards are thrown into */
+.pit{position:absolute;z-index:4;left:50%;top:47%;transform:translate(-50%,-50%);width:calc(var(--cw)*3.5);height:calc(var(--ch)*2.4);
+  border-radius:18px;border:2px dashed rgba(244,236,218,.22);background:rgba(0,0,0,.16);box-shadow:inset 0 0 30px rgba(0,0,0,.25)}
+.pit .mark{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-size:calc(var(--cw)*.42);color:rgba(244,236,218,.12);letter-spacing:1px;pointer-events:none}
+.slot{position:absolute}
+.slot.p0{bottom:6px;left:50%;transform:translateX(-50%)}
+.slot.p2{top:6px;left:50%;transform:translateX(-50%)}
+.slot.p1{right:6px;top:50%;transform:translateY(-50%) rotate(-4deg)}
+.slot.p3{left:6px;top:50%;transform:translateY(-50%) rotate(4deg)}
+.slot .card.in{animation:fly .28s ease-out}
+.slot.p0 .card.in{--fx:0;--fy:70px}.slot.p2 .card.in{--fx:0;--fy:-70px}
+.slot.p1 .card.in{--fx:70px;--fy:0}.slot.p3 .card.in{--fx:-70px;--fy:0}
+@keyframes fly{from{transform:translate(var(--fx),var(--fy)) scale(.85);opacity:0}}
+.card.win{box-shadow:0 0 0 3px var(--gold),0 8px 18px rgba(0,0,0,.45)}
+.pit.at0{--sx:120%;--sy:240%}.pit.at2{--sx:120%;--sy:-240%}
+.pit.at1{--sx:300%;--sy:160%}.pit.at3{--sx:-300%;--sy:160%}
+.pit.sweep .slot .card{animation:sweep .38s ease-in forwards}
+@keyframes sweep{to{transform:translate(var(--sx),var(--sy)) scale(.35) rotate(20deg);opacity:0}}
+
+/* trick piles in front of a teammate */
+.pile{position:absolute;z-index:2;display:flex;flex-direction:column;align-items:center;gap:4px}
+.s0row{display:flex;align-items:center;gap:8px}
+.pile.at0{bottom:12px;left:calc(50% + 66px)}
+.pile.at2{top:12px;left:calc(50% + 66px)}
+.pile.at1{right:12px;top:calc(43% + 96px)}
+.pile.at3{left:12px;top:calc(43% + 96px)}
+.stack{display:flex;direction:ltr}
+.stack span{width:17px;height:25px;border-radius:3px;border:1px solid rgba(255,255,255,.55);flex:none;
+  background:repeating-linear-gradient(45deg,var(--sadu) 0 3px,#3a0d10 3px 6px);box-shadow:1px 1px 3px rgba(0,0,0,.45)}
+.stack span+span{margin-left:-8px}
+.pile b{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.pile.us b{color:var(--gold)} .pile.them b{color:var(--them)}
+
+/* cards */
+.card{position:relative;width:var(--cw);height:var(--ch);border-radius:calc(var(--cw)*.1);background:var(--card);color:var(--card-ink);
+  box-shadow:0 2px 6px rgba(0,0,0,.35),inset 0 0 0 1px rgba(0,0,0,.06);font-family:Georgia,"Times New Roman",serif;flex:none;user-select:none}
+.card.red{color:var(--sadu)}
+.card .ix{position:absolute;top:4%;left:8%;font-size:calc(var(--cw)*.27);line-height:.95;text-align:center;font-weight:700}
+.card .ix i{display:block;font-style:normal;font-size:calc(var(--cw)*.24)}
+.card .pip{position:absolute;right:8%;bottom:4%;font-size:calc(var(--cw)*.5);line-height:1}
+.card .face{position:absolute;inset:22% 12% 30% 30%;display:grid;place-items:center;font-family:var(--f-display);font-size:calc(var(--cw)*.2);opacity:.75}
+.card.joker{background:linear-gradient(160deg,var(--card) 55%,#f1dcaa)}
+.card.joker.dead{background:var(--card);color:#8a8f8c}
+.card .face.jk{inset:20% 6% 36% 6%;text-align:center;line-height:1.15;opacity:1;font-weight:700;font-size:calc(var(--cw)*.17)}
+
+/* action bar */
+.bar{min-height:54px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding-block:8px 2px}
+.status{font-size:14px;color:var(--muted);text-align:center}
+.bid{border:none;border-radius:10px;padding:9px 16px;font-size:15px;font-weight:700;cursor:pointer;background:var(--ink);color:#1b1206;min-width:58px;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.bid:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.bid.sun{background:var(--gold)}
+.bid.pass{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.bid.suit-red{color:var(--sadu)}
+.bid:hover{filter:brightness(1.08)}
+
+/* hand: a gentle fan */
+.hand{direction:ltr;display:flex;justify-content:center;align-items:flex-end;padding-block:12px 14px;min-height:calc(var(--ch) + 30px)}
+.hand .card+.card{margin-left:calc(var(--cw)*-.28)}
+.hand .card{transform:translateY(var(--y,0px)) rotate(var(--r,0deg));transform-origin:50% 130%;transition:transform .15s ease,filter .15s}
+/* no hints: every card looks the same on your turn; the rules are checked when you play */
+.hand.active .card{cursor:pointer}
+.hand.active .card:hover,.hand.active .card:focus-visible{transform:translateY(calc(var(--y,0px) - 16px)) rotate(var(--r,0deg));outline:none}
+
+/* modals */
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(3,8,7,.72);
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sheet{background:var(--felt-deep);border:1px solid var(--line);border-radius:16px;padding:20px;width:min(440px,100%);max-height:100%;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.sheet h2{font-family:var(--f-display);color:var(--gold);margin:0 0 6px;font-size:24px;text-wrap:balance}
+.sheet p{margin:0 0 12px;line-height:1.7}
+.verdict{font-weight:700}
+table.res{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-bottom:14px}
+table.res th,table.res td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:center}
+table.res th:first-child,table.res td:first-child{text-align:start;color:var(--muted)}
+table.res tr.sum td{font-weight:700;color:var(--ink);font-size:16px}
+table.res tr.total td{color:var(--gold);font-weight:700;border-bottom:none}
+.primary{width:100%;border:none;border-radius:10px;padding:12px;font-size:16px;font-weight:700;background:var(--gold);color:#1b1206;cursor:pointer}
+.rules h3{font-family:var(--f-display);font-size:16px;margin:14px 0 4px;color:var(--ink)}
+.rules ul{margin:0;padding-inline-start:18px;line-height:1.8;font-size:14px;color:var(--muted)}
+.lastTrick{display:flex;gap:6px;justify-content:center;direction:ltr;margin:6px 0 14px}
+.tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin:8px 0 16px}
+.tpick{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 8px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-size:14px}
+.tpick:hover{border-color:var(--muted)}
+.tpick.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.tpick i{display:block;width:100%;aspect-ratio:16/10;max-width:100%;border-radius:10px}
+/* home & lobby */
+.home .primary+.or{margin-top:14px}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:4px 0 12px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.primary.alt{background:transparent;color:var(--gold);border:1.5px solid var(--gold)}
+.primary:disabled,.bid:disabled{opacity:.5;cursor:default}
+.ghost.wide{width:100%;margin-top:10px;padding:9px}
+.joinrow{display:flex;gap:8px;margin-top:10px}
+.joinrow input{flex:1;min-width:0;font:inherit;font-size:16px;letter-spacing:3px;text-transform:uppercase;text-align:center;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink)}
+.joinrow input:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0!important}
+.err{color:var(--them);font-size:13px;margin:10px 0 0!important}
+.status.err{color:var(--them)}
+.codebox{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:12px;border:1px dashed rgba(227,173,75,.5);background:rgba(0,0,0,.2)}
+.codebox b{font-family:var(--f-display);font-size:30px;letter-spacing:6px;color:var(--gold);direction:ltr}
+.link{direction:ltr;text-align:center;font-size:11px;color:var(--muted);word-break:break-all;margin:6px 0 12px!important;user-select:all}
+.seats{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.seatrow{display:grid;grid-template-columns:88px 1fr auto;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.15)}
+.seatrow.mine{border-color:var(--gold)}
+.seatrow .sn{font-weight:700;font-size:13px}
+.seatrow .sn small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.seatrow .occ{font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seatrow .occ.empty{color:var(--muted)}
+.seatrow .bid{padding:6px 10px;font-size:13px;min-width:0}
+.tag.ai{background:rgba(244,236,218,.18);color:var(--ink)}
+.bid.kick{background:var(--them);color:#1b1206;padding:6px 10px;font-size:13px;min-width:0}
+.kashf{border:1.5px solid var(--them);color:var(--them);background:transparent;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.kashf.arm{background:var(--them);color:#1b1206}
+.kashf.used{border-style:dashed;opacity:.6;cursor:default;font-weight:500;font-size:12px;padding:6px 10px}
+.phbtn{border:1px solid var(--line);color:var(--ink);background:var(--panel);border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer;font-family:inherit}
+.phbtn.on{border-color:var(--gold);color:var(--gold)}
+.phbtn.voice{display:inline-flex;align-items:center;gap:5px}
+.mic{width:15px;height:15px;fill:currentColor;flex:none}
+.who .mic{width:13px;height:13px;color:var(--gold)}
+.who .mic.off{color:var(--muted);opacity:.7}
+.who .mic.wait{opacity:.35}
+.phrlist{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding-top:4px}
+.phrlist button{border:1px solid rgba(227,173,75,.45);background:rgba(0,0,0,.25);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit}
+.phrlist button:hover{background:rgba(227,173,75,.18)}
+.bubble.say{background:var(--gold)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pair .primary{font-size:14px;padding:11px 8px}
+/* six seats: you at the bottom, two on your right, one across, two on your left */
+.t6 .seat.s1{right:10px;top:69%;transform:translateY(-50%)}
+.t6 .seat.s2{right:10px;top:27%;transform:translateY(-50%)}
+.t6 .seat.s3{top:12px;left:50%;transform:translateX(-50%)}
+.t6 .seat.s4{left:10px;top:27%;transform:translateY(-50%)}
+.t6 .seat.s5{left:10px;top:69%;transform:translateY(-50%)}
+.t6 .seat .who{flex-direction:row;padding:3px 10px 3px 4px;border-radius:999px;gap:6px}
+.t6 .seat .backs{flex-direction:row}
+.t6 .seat .backs .back{width:14px;height:20px}
+.t6 .seat .backs .back+.back{margin-left:-9px;margin-top:0}
+.t6 .seat.s3{flex-direction:row;flex-wrap:wrap;justify-content:center;max-width:70%}
+.t6 .pit{width:calc(var(--cw)*3.6);height:calc(var(--ch)*2.5)}
+.t6 .slot.p1{right:6px;bottom:6px;top:auto;transform:rotate(-6deg)}
+.t6 .slot.p2{right:6px;top:6px;transform:rotate(6deg)}
+.t6 .slot.p3{top:6px;left:50%;transform:translateX(-50%)}
+.t6 .slot.p4{left:6px;top:6px;transform:rotate(-6deg)}
+.t6 .slot.p5{left:6px;bottom:6px;top:auto;transform:rotate(6deg)}
+.t6 .slot.p1 .card.in,.t6 .slot.p2 .card.in{--fx:70px;--fy:0}
+.t6 .slot.p3 .card.in{--fx:0;--fy:-70px}
+.t6 .slot.p4 .card.in,.t6 .slot.p5 .card.in{--fx:-70px;--fy:0}
+.t6 .pit.at0{--sx:0;--sy:260%}.t6 .pit.at3{--sx:0;--sy:-260%}
+.t6 .pit.at1{--sx:300%;--sy:140%}.t6 .pit.at2{--sx:300%;--sy:-140%}
+.t6 .pit.at4{--sx:-300%;--sy:-140%}.t6 .pit.at5{--sx:-300%;--sy:140%}
+.pile.in{position:static;flex-direction:row;gap:6px}
+.pile.in .stack span{width:13px;height:19px}
+.pile.in .stack span+span{margin-left:-7px}
+.cnt{display:none;font-size:11px;font-weight:700;color:var(--muted);background:rgba(0,0,0,.3);border-radius:6px;padding:0 5px}
+/* phone: smaller cards in the box, card counts instead of rows of backs */
+@media (max-width:560px){
+  .t6 .pit{--cw:clamp(34px,10vw,56px);--ch:calc(var(--cw)*1.42);width:calc(var(--cw)*3.8);height:calc(var(--ch)*2.35);top:50%}
+  .t6 .seat .backs{display:none}
+  .t6 .cnt{display:inline-block}
+  .t6 .seat .who{font-size:12px;padding:2px 8px 2px 3px;gap:4px}
+  .t6 .seat.s1{top:72%}.t6 .seat.s5{top:72%}
+  .t6 .seat.s2{top:30%}.t6 .seat.s4{top:30%}
+}
+
+@media (max-width:560px){
+  :root{--cw:clamp(38px,11.2vw,76px)}
+  .top{gap:6px 8px;padding-block:6px 4px}
+  .brand{font-size:15px;line-height:1.2;max-width:6.5em} .brand small{display:none}
+  .team{min-width:0;padding:4px 8px;gap:0 6px}
+  .team b{font-size:18px}
+  .team .tn{font-size:11px}
+  .team .tn small{font-size:9.5px;max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tools{width:100%;justify-content:center;gap:4px}
+  .ghost{padding:4px 10px;font-size:12px}
+  .info{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding-block:2px 6px;font-size:11px;scrollbar-width:none}
+  .info::-webkit-scrollbar{display:none}
+  .chip{white-space:nowrap;padding:2px 8px;flex:none}
+  .bar{min-height:44px;padding-block:6px 0;gap:6px}
+  .kashf,.phbtn{padding:6px 11px;font-size:13px}
+  .hand{padding-block:6px 24px;min-height:calc(var(--ch) + 30px)}
+  .table{border-width:7px;border-radius:24px}
+  .table::before{border-radius:16px}
+  .pit{width:calc(var(--cw)*3.3)}
+  .avatar{width:26px;height:26px;font-size:13px}
+  .pile.at0,.pile.at2{left:calc(50% + 58px)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app" id="app">
+  <div class="top">
+    <div class="brand">فيها ولا فمصريها<small>ورقة · مزايدة على الأكلات</small></div>
+    <div class="scores">
+      <div class="team us"><span class="tn">لنا<small id="nUs">أنت وربيعك</small></span><b id="scUs">0</b><span class="meter"><i id="mUs"></i></span></div>
+      <div class="team them"><span class="tn">لهم<small id="nThem">الخصم</small></span><b id="scThem">0</b><span class="meter"><i id="mThem"></i></span></div>
+    </div>
+    <div class="tools">
+      <button class="ghost" id="btnPlayers" type="button" hidden>اللاعبين</button>
+      <button class="ghost exit" id="btnExit" type="button" hidden>خروج</button>
+      <button class="ghost" id="btnHome" type="button">القائمة</button>
+      <button class="ghost" id="btnLast" type="button">آخر أكلة</button>
+      <button class="ghost" id="btnTable" type="button">الطاولة</button>
+      <button class="ghost" id="btnRules" type="button">القوانين</button>
+    </div>
+  </div>
+  <div class="info" id="info"></div>
+  <div class="wrap"><div class="table" id="table"></div></div>
+  <div class="bar" id="bar"></div>
+  <div class="hand" id="hand"></div>
+</div>
+<div id="modal"></div>
+
+<script>
+const SUIT_SYM={S:'♠',H:'♥',D:'♦',C:'♣'};
+const SUIT_AR={S:'سبيت',H:'هاص',D:'ديمن',C:'شريا'};
+const RANKS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const FACE_AR={K:'شايب',Q:'بنت',J:'ولد'};
+const SOLO_NAMES=['أنت','سالم','حمد','ناصر','خالد','سعيد'];
+const AI_NAMES=['خالد','سالم','حمد','ناصر','سعيد','علي'];
+const AR_NUM=['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+const MIN_BID=6, MAX_BID=8, TRICKS=9, TRUMP_LEAD_BID=8, TARGET=54, BOUND=54, STATE_V=8;
+const ARTIFACT_URL='https://claude.ai/artifact/P2bFyqfjfWarthuczfJ7HW';
+const FIREBASE_VERSION='10.12.2';
+// on claude.ai the link is the artifact's; on our own site it is wherever the page is served
+const shareURL=()=>(NET.mode==='fb'?location.origin+location.pathname:ARTIFACT_URL)+'#'+NET.code;
+const CODE_CHARS='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
+let G=null, timer=null, justPlayed=null, showLast=false, showRules=false, showTables=false, localMsg='';
+let ui={screen:'home',joinErr:'',busy:false,copied:'',kashfArm:false,exitAsk:false,showPlayers:false,kickArm:null};
+// shared-table state: the table document holds the whole game; the host's page runs computer seats and timings
+let NET={mode:null,fbErr:'',ready:false,db:null,user:null,uid:null,canWrite:null,on:false,code:null,ref:null,unsubT:null,unsubS:null,
+  host:null,phase:null,rev:0,lastJson:'',updatedAt:0,n:4,seatDocs:[null,null,null,null,null,null],chain:Promise.resolve(),err:''};
+let names={};
+// quick phrases: each seat's latest one lives at tables/<code>/says/s<seat> and shows as a bubble for a few seconds
+const PHRASES=['السلام عليكم','يلا بسرعة','كفو!','زين لعبت','حظ أوفر','ما عليه','هههههه','مبروك'];
+let phr=[null,null,null,null,null,null],lastSay=0,unsubP=null;
+function showPhrase(p,i){
+  if(!Number.isInteger(i)||i<0||i>=PHRASES.length||p<0||p>3)return;
+  phr[p]={i,until:Date.now()+4000};setTimeout(render,4100);
+}
+function sayPhrase(i){
+  const m=me();if(!G||m<0||Date.now()-lastSay<1500)return;
+  lastSay=Date.now();ui.phrOpen=false;showPhrase(m,i);
+  if(NET.on)NET.db.doc(`tables/${NET.code}/says/s${m}`).set({i,at:lastSay}).catch(()=>{});
+  render();
+}
+
+const TABLES=[
+  {id:'green',ar:'أخضر المجلس',c:['#13493f','#0a2a24','#4a2d18']},
+  {id:'navy',ar:'أزرق الليل',c:['#1d4673','#0b1b31','#2b3140']},
+  {id:'maroon',ar:'عنّابي',c:['#74222d','#2c0b11','#3d2516']},
+  {id:'wood',ar:'خشب',c:['#8a5a30','#3a220f','#2a180a']},
+  {id:'charcoal',ar:'فحمي',c:['#41484c','#16191b','#0f1112']},
+];
+function applyTable(t){
+  if(!TABLES.some(x=>x.id===t))t='green';
+  document.documentElement.dataset.table=t;
+  try{localStorage.setItem('table',t)}catch(e){}
+}
+try{applyTable(localStorage.getItem('table')||'green')}catch(e){applyTable('green')}
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}};
+
+const id=c=>c.s+c.r;
+const team=p=>p%2;
+// 4 or 6 players; teams alternate around the table (even seats vs odd seats)
+const N=()=>G?G.n:4;
+const seatsOf=()=>[...Array(N()).keys()];
+const next=p=>(p+1)%N();
+const red=c=>c.s==='H'||c.s==='D'||c.r==='BJ';
+const isJoker=c=>c.s==='X';
+const isDead=c=>c.r==='SJ'&&!!G.sjDead;
+const isTrump=c=>!!G.trump&&!isDead(c)&&(c.s===G.trump||isJoker(c));
+const effSuit=c=>isTrump(c)?G.trump:c.s;
+const ledEntry=()=>G.trick.find(e=>!isDead(e.c));
+const str=c=>isDead(c)?-1:isJoker(c)?(c.r==='BJ'?1001:1000):(isTrump(c)?100:0)+RANKS.indexOf(c.r);
+const minBy=(a,f)=>a.reduce((m,x)=>f(x)<f(m)?x:m);
+const maxBy=(a,f)=>a.reduce((m,x)=>f(x)>f(m)?x:m);
+const esc=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch]);
+// 4 players: 7–A plus ٦ السبيت and ٦ الهاص (36 with the jokers); 6 players: the full 52 (54 with the jokers)
+function fullDeck(){
+  const six=G&&G.n===6,low=['2','3','4','5'];
+  const d=[];for(const s of 'SHDC')for(const r of RANKS)if(six||!(low.includes(r)||(r==='6'&&(s==='C'||s==='D'))))d.push({s,r});
+  d.push({s:'X',r:'BJ'},{s:'X',r:'SJ'});
+  return d;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function beats(a,b){
+  if(isDead(a)||isDead(b))return !isDead(a);
+  if(isJoker(a)||isJoker(b))return str(a)>str(b);
+  if(effSuit(a)===effSuit(b))return str(a)>str(b);
+  return isTrump(a)&&!isTrump(b);
+}
+function winIdx(t){let w=0;for(let i=1;i<t.length;i++)if(beats(t[i].c,t[w].c))w=i;return w}
+function sortHand(h){const so='XSHCD';h.sort((a,b)=>so.indexOf(a.s)-so.indexOf(b.s)||str(a)-str(b))}
+function schedule(fn,ms){clearTimeout(timer);timer=setTimeout(fn,ms)}
+const contract=()=>AR_NUM[G.bid.n]+' حكم '+SUIT_SYM[G.trump]+(G.bound?' · باوند':'');
+
+/* ---------- seats & roles ---------- */
+const me=()=>!G?0:NET.on?G.seats.indexOf(NET.uid):0;          // -1 = watching
+const viewSeat=()=>Math.max(0,me());
+const isAI=p=>NET.on?!G.seats[p]:p!==0;
+const amDriver=()=>!NET.on||NET.host===NET.uid;
+function nameOf(p){
+  if(p===me())return 'أنت';
+  if(!NET.on)return SOLO_NAMES[p];
+  return G.seats[p]?(names[G.seats[p]]||'لاعب'):AI_NAMES[p];
+}
+
+/* ---------- flow ---------- */
+// every state change goes through advance(): save to the shared table, draw, then let the driver schedule what comes next
+function advance(){
+  if(G.phase==='play'&&!G.trick.length&&canAskBound()){G.phase='boundAsk';G.boundAsked=true}
+  localMsg='';ui.kashfArm=false;
+  commit();render();drive();
+}
+function drive(){
+  clearTimeout(timer);
+  if(!G||!amDriver())return;
+  const ph=G.phase;
+  if(ph==='bid'&&isAI(G.bidTurn))schedule(()=>aiBid(G.bidTurn),800);
+  else if(ph==='trump'&&isAI(G.bid.p))schedule(()=>setTrump(bestSuit(G.hands[G.bid.p]).s),900);
+  else if(ph==='boundAsk'&&isAI(G.buyer))schedule(()=>decideBound(G.buyer,aiBound(G.buyer)),900);
+  else if(ph==='play'&&aiKashfTeam()>=0)schedule(()=>{const t=aiKashfTeam();callKashf(t,-1,aiKashfTarget(t))},700);
+  else if(ph==='play'){
+    if(G.trick.length===N())schedule(G.sweepTo<0?sweepTrick:resolveTrick,G.sweepTo<0?1100:380);
+    else if(isAI(G.turn))schedule(()=>playCard(G.turn,aiPlay(G.turn)),650);
+  }else if(ph==='redeal')schedule(()=>{G.dealer=next(G.dealer);G.round--;startRound()},1500);
+}
+function newGame(seats,n){n=n||(seats?seats.length:4);G={v:STATE_V,n,scores:[0,0],dealer:n-1,round:0,phase:'idle',seats:seats||Array(n).fill(null)};startRound()}
+function startRound(){
+  const d=shuffle(fullDeck());
+  const n=G.n;
+  Object.assign(G,{round:G.round+1,hands:Array.from({length:n},()=>[]),trump:null,buyer:-1,trick:[],played:[],tricks:[0,0],
+    lastTrick:null,say:Array(n).fill(''),bid:{p:-1,n:MIN_BID-1},passed:Array(n).fill(false),bidTurn:next(G.dealer),phase:'bid',summary:null,sjDead:false,bound:false,boundAsked:false,pileOwner:[-1,-1],sweepTo:-1,plays:[],fouls:[],kashfUsed:[false,false]});
+  for(let i=0;i<TRICKS;i++)for(let p=0;p<n;p++)G.hands[p].push(d.pop());
+  G.hands.forEach(sortHand);
+  justPlayed=null;
+  advance();
+}
+
+/* ---------- bidding (مزايدة على عدد الأكلات) ---------- */
+function bidOptions(){const o=[];for(let n=G.bid.n+1;n<=MAX_BID;n++)o.push(n);return o}
+function doBid(p,n){
+  if(G.phase!=='bid'||p!==G.bidTurn)return;
+  if(n==='pass')G.say[p]='طاف';
+  else{G.bid={p,n};G.say[p]=AR_NUM[n]}
+  // each player speaks once: one number or طاف, then they are done
+  G.passed[p]=true;
+  const active=seatsOf().filter(q=>!G.passed[q]);
+  if(G.bid.p>=0&&(G.bid.n===MAX_BID||!active.length)){G.phase='trump';G.buyer=G.bid.p;return advance()}
+  if(!active.length){G.phase='redeal';return advance()}
+  let q=next(p);while(G.passed[q])q=next(q);
+  G.bidTurn=q;advance();
+}
+function trickEst(h,s){
+  let e=0;const tr=h.filter(c=>c.s===s||isJoker(c));
+  for(const c of tr)e+=({BJ:1,SJ:.9,A:1,K:.8,Q:.6,J:.45})[c.r]||.3;
+  if(tr.length>=5)e+=.6;
+  for(const c of h)if(!isJoker(c)&&c.s!==s){
+    if(c.r==='A')e+=.8;else if(c.r==='K'&&h.some(x=>x.s===c.s&&x.r==='A'))e+=.4;
+  }
+  return e;
+}
+function bestSuit(h){return maxBy('SHDC'.split('').map(s=>({s,v:trickEst(h,s)})),o=>o.v)}
+function aiBid(p){
+  const want=G.bid.n+1;
+  if(want>MAX_BID)return doBid(p,'pass');
+  const own=bestSuit(G.hands[p]).v;
+  const partnerHigh=G.bid.p>=0&&team(G.bid.p)===team(p);
+  const teamEst=own+(partnerHigh?3.6:3);
+  doBid(p,teamEst>=want+(partnerHigh?1:0)?want:'pass');
+}
+function setTrump(s){
+  if(G.phase!=='trump')return;
+  G.trump=s;G.hands.forEach(sortHand);
+  G.phase='play';G.turn=G.leader=next(G.buyer);
+  G.say=Array(G.n).fill('');G.say[G.buyer]=contract();
+  advance();
+}
+
+/* ---------- play ---------- */
+// jokers never lead; after a bid of 8 or more the first lead must be trump if possible.
+// small joker: playable in tricks 1–2, forced on trick 3; if its holder leads trick 3 it turns blank (بيضة) and can be thrown any time.
+// big joker: only after the small one is out.
+function legal(p){
+  const h=G.hands[p],n=G.tricks[0]+G.tricks[1]+1;
+  const plain=h.filter(c=>!isJoker(c));
+  if(!G.trick.length){
+    if(n===1&&G.bid.n>=TRUMP_LEAD_BID){const tr=plain.filter(c=>c.s===G.trump);if(tr.length)return tr}
+    if(plain.length)return plain;
+    const ok=h.filter(c=>c.r!=='BJ'||G.sjDead||G.played.some(x=>x.r==='SJ'));
+    return ok.length?ok:h.slice();
+  }
+  const sj=h.find(c=>c.r==='SJ'),bj=h.find(c=>c.r==='BJ');
+  if(sj&&!G.sjDead&&n>=3)return [sj];
+  const L=legalCore(plain);
+  if(sj)L.push(sj);
+  if(bj&&(G.sjDead||G.played.some(c=>c.r==='SJ')))L.push(bj);
+  return L.length?L:h.slice();
+}
+// the only obligation is following the led suit; otherwise any card
+function legalCore(h){
+  const first=ledEntry();
+  if(!h.length||!first)return h.slice();
+  const led=effSuit(first.c);
+  const same=h.filter(c=>effSuit(c)===led);
+  return same.length?same:h.slice();
+}
+function unseen(p){const seen=new Set([...G.played.map(id),...G.hands[p].map(id)]);return fullDeck().filter(c=>!seen.has(id(c)))}
+function aiPlay(p){
+  const L=legal(p);if(L.length===1)return L[0];
+  const n=G.tricks[0]+G.tricks[1]+1;
+  const liveSJ=L.find(c=>c.r==='SJ'&&!G.sjDead);
+  if(liveSJ&&G.trick.length&&(n===2||team(G.trick[winIdx(G.trick)].p)!==team(p)))return liveSJ;
+  const un=unseen(p);
+  const master=c=>!un.some(u=>beats(u,c)&&(isJoker(u)||effSuit(u)===effSuit(c)));
+  const cheap=c=>isDead(c)?-1000:str(c)+(isTrump(c)?300:0)+(isJoker(c)?500:0);
+  if(!G.trick.length){
+    const myTr=L.filter(isTrump),oppTr=un.filter(isTrump).length;
+    if(team(p)===team(G.buyer)&&myTr.length&&oppTr>0){const m=myTr.filter(master);if(m.length)return minBy(m,cheap)}
+    const side=L.filter(c=>!isTrump(c)&&master(c));
+    if(side.length)return side[0];
+    const count=s=>G.hands[p].filter(c=>c.s===s).length;
+    const pool=L.filter(c=>!isTrump(c));
+    return minBy(pool.length?pool:L,c=>cheap(c)-count(c.s)*3);
+  }
+  const w=G.trick[winIdx(G.trick)],last=G.trick.length===N()-1;
+  if(team(w.p)===team(p)){
+    const safe=last||!un.some(u=>beats(u,w.c));
+    if(safe)return minBy(L,cheap);
+  }
+  const win=L.filter(c=>beats(c,w.c));
+  if(win.length){
+    const sure=win.filter(c=>!un.some(u=>beats(u,c)));
+    return minBy(last||!sure.length?win:sure,cheap);
+  }
+  return minBy(L,cheap);
+}
+function playCard(p,c){
+  if(G.phase!=='play'||p!==G.turn||G.trick.length===N())return;
+  const h=G.hands[p],i=h.findIndex(x=>id(x)===id(c));if(i<0)return;
+  if(!G.played.length)G.say=Array(G.n).fill('');
+  const f=foulOf(p,c);if(f)G.fouls.push(f);
+  h.splice(i,1);
+  G.trick.push({p,c});G.played.push(c);G.plays.push({p,c});justPlayed=id(c);
+  G.turn=next(p);
+  advance();
+}
+// slide the finished trick toward the winning team's pile, then settle it
+function sweepTrick(){
+  const w=G.trick[winIdx(G.trick)],t=team(w.p);
+  G.sweepTo=G.pileOwner[t]>=0?G.pileOwner[t]:w.p;justPlayed=null;
+  advance();
+}
+function resolveTrick(){
+  const w=G.trick[winIdx(G.trick)];
+  if(G.pileOwner[team(w.p)]<0)G.pileOwner[team(w.p)]=w.p;
+  G.sweepTo=-1;
+  G.tricks[team(w.p)]++;
+  G.lastTrick={cards:G.trick.slice(),winner:w.p};
+  G.trick=[];G.turn=G.leader=w.p;justPlayed=null;G.say=Array(G.n).fill('');
+  if(G.tricks[0]+G.tricks[1]===2&&G.hands[w.p].some(c=>c.r==='SJ')){G.sjDead=true;G.say[w.p]='الجوكر الصغير صار بيضة'}
+  // the round ends as soon as the contract is made or broken
+  const bt=team(G.buyer);
+  if(G.hands.every(h=>!h.length)||(G.bound?G.tricks[1-bt]>0:G.tricks[bt]>=G.bid.n||G.tricks[1-bt]>TRICKS-G.bid.n))return endRound();
+  advance();
+}
+/* ---------- bound (باوند): optional bet on taking every trick ---------- */
+// offered once, right before the trick that could complete the bid, while the defenders still have no tricks
+function canAskBound(){
+  const bt=team(G.buyer);
+  return !G.boundAsked&&G.tricks[1-bt]===0&&G.tricks[bt]===G.bid.n-1;
+}
+function aiBound(p){
+  const un=unseen(p),left=TRICKS-G.tricks[0]-G.tricks[1];
+  return G.hands[p].filter(c=>!isDead(c)&&!un.some(u=>beats(u,c))).length>=left;
+}
+function decideBound(p,yes){
+  if(G.phase!=='boundAsk'||p!==G.buyer)return;
+  G.bound=yes;G.say[p]=yes?'باوند!':'بدون باوند';
+  G.phase='play';advance();
+}
+/* ---------- الكشف: any card may be played; the other team can ask to check ---------- */
+// a wrong card is noted quietly, with what would later prove it to someone watching the table
+function foulOf(p,c){
+  if(legal(p).some(x=>id(x)===id(c)))return null;
+  const h=G.hands[p],n=G.tricks[0]+G.tricks[1]+1,at=G.plays.length,base={p,c,trick:n,at};
+  if(isJoker(c)&&(!isDead(c)||!G.trick.length))return {...base,kind:'open'};
+  if(h.some(x=>x.r==='SJ')&&!G.sjDead&&n>=3)return {...base,kind:'sj'};
+  if(!G.trick.length)return {...base,kind:'void',suit:G.trump};
+  return {...base,kind:'void',suit:effSuit(ledEntry().c)};
+}
+// public proof: a joker played out of turn shows at once; a skipped suit shows when that suit comes out of the same hand later
+function provable(f){
+  if(f.kind==='open')return true;
+  const later=G.plays.slice(f.at+1).filter(e=>e.p===f.p);
+  if(f.kind==='sj')return later.some(e=>e.c.r==='SJ');
+  return later.some(e=>!isJoker(e.c)&&e.c.s===f.suit);
+}
+// a team with a computer seat asks for الكشف once it can see proof against the other team
+function aiKashfTeam(){
+  if(G.phase!=='play')return -1;
+  for(const t of [0,1]){
+    if(G.kashfUsed[t]||!seatsOf().some(q=>team(q)===t&&isAI(q)))continue;
+    if(G.fouls.some(f=>team(f.p)!==t&&provable(f)))return t;
+  }
+  return -1;
+}
+const aiKashfTarget=t=>G.fouls.find(f=>team(f.p)!==t&&provable(f)).p;
+// the caller names the player they accuse; only that player's wrong cards count
+function callKashf(t,by,accused){
+  if((G.phase!=='play'&&G.phase!=='boundAsk')||G.kashfUsed[t]||!(accused>=0)||team(accused)===t)return;
+  G.kashfUsed[t]=true;
+  const caller=by>=0?by:seatsOf().find(q=>team(q)===t&&isAI(q));
+  // a right call scores for the callers; a wrong call scores the same for the other team
+  const f=G.fouls.find(x=>x.p===accused)||null;
+  const res=[0,0],pts=G.bound?BOUND:G.bid.n*2;res[f?t:1-t]=pts;
+  G.scores[0]+=res[0];G.scores[1]+=res[1];
+  G.trick=[];G.sweepTo=-1;
+  G.summary={res,kashf:{t,caller,accused,foul:f,pts},n:G.bid.n,bound:G.bound};
+  G.phase=(G.scores[0]>=TARGET||G.scores[1]>=TARGET)&&G.scores[0]!==G.scores[1]?'over':'roundEnd';
+  advance();
+}
+/* ---------- voice (our own site only): players' browsers talk directly over WebRTC; Firestore passes the offers and answers ---------- */
+const ICE=[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}];
+const MIC_SVG='<svg class="mic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>';
+const VOICE={on:false,muted:false,stream:null,sid:'',peers:{},present:{},unsubV:null,err:''};
+const voiceOK=()=>NET.mode==='fb'&&NET.on&&!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)&&typeof RTCPeerConnection!=='undefined';
+const pairId=(a,b)=>a<b?a+'__'+b:b+'__'+a;
+async function voiceJoin(){
+  if(VOICE.on||!voiceOK())return;
+  try{VOICE.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}
+  catch(e){VOICE.err='ما قدرنا نشغّل المايك. اسمح للمتصفح يستخدم المايك وجرّب مرة ثانية.';return render()}
+  Object.assign(VOICE,{on:true,muted:false,err:'',sid:Math.random().toString(36).slice(2,10)});
+  try{await NET.db.doc(`tables/${NET.code}/voice/${NET.uid}`).set({uid:NET.uid,sid:VOICE.sid,muted:false,at:Date.now()})}
+  catch(e){voiceLeave();VOICE.err='ما قدرنا ندخلك الصوت. جرّب مرة ثانية.';return render()}
+  VOICE.unsubV=NET.db.collection(`tables/${NET.code}/voice`).onSnapshot(qs=>{
+    const now={};for(const d of qs.docs){const v=d.data()||{};if(v.uid&&v.sid&&v.uid!==NET.uid)now[v.uid]=v}
+    VOICE.present=now;syncPeers();render();
+  },()=>{});
+  render();
+}
+// one connection per other player in the voice room; a player who rejoins gets a fresh one
+function syncPeers(){
+  for(const u of Object.keys(VOICE.peers))if(!VOICE.present[u]||VOICE.present[u].sid!==VOICE.peers[u].sid)dropPeer(u);
+  for(const [u,v] of Object.entries(VOICE.present))if(!VOICE.peers[u])addPeer(u,v.sid);
+}
+// the player with the smaller id sends the offer; full candidate lists ride inside the offer and answer
+function addPeer(u,sid){
+  const pc=new RTCPeerConnection({iceServers:ICE}),peer={pc,sid,audio:null,answered:false,unsub:null};
+  VOICE.peers[u]=peer;
+  VOICE.stream.getTracks().forEach(t=>pc.addTrack(t,VOICE.stream));
+  pc.ontrack=e=>{
+    if(!peer.audio){peer.audio=document.createElement('audio');peer.audio.autoplay=true;peer.audio.setAttribute('playsinline','');document.body.appendChild(peer.audio)}
+    peer.audio.srcObject=e.streams[0]||new MediaStream([e.track]);peer.audio.play().catch(()=>{});
+  };
+  pc.onconnectionstatechange=()=>render();
+  const ref=NET.db.doc(`tables/${NET.code}/rtc/${pairId(NET.uid,u)}`),caller=NET.uid<u;
+  if(caller)(async()=>{
+    await pc.setLocalDescription(await pc.createOffer());await iceDone(pc);
+    await ref.set({offer:pc.localDescription.sdp,offerSid:VOICE.sid,targetSid:sid,answer:null,answerSid:null});
+  })().catch(()=>{});
+  peer.unsub=ref.onSnapshot(s=>{
+    const d=s.exists&&s.data();if(!d)return;
+    if(caller){
+      if(d.answer&&d.offerSid===VOICE.sid&&d.answerSid===sid&&pc.signalingState==='have-local-offer')pc.setRemoteDescription({type:'answer',sdp:d.answer}).catch(()=>{});
+    }else if(d.offer&&!peer.answered&&d.targetSid===VOICE.sid&&d.offerSid===sid){
+      peer.answered=true;
+      (async()=>{
+        await pc.setRemoteDescription({type:'offer',sdp:d.offer});
+        await pc.setLocalDescription(await pc.createAnswer());await iceDone(pc);
+        await ref.update({answer:pc.localDescription.sdp,answerSid:VOICE.sid});
+      })().catch(()=>{});
+    }
+  },()=>{});
+}
+function iceDone(pc){
+  return new Promise(ok=>{
+    if(pc.iceGatheringState==='complete')return ok();
+    const t=setTimeout(ok,2500);
+    pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);ok()}});
+  });
+}
+function dropPeer(u){
+  const p=VOICE.peers[u];if(!p)return;
+  try{if(p.unsub)p.unsub();p.pc.close()}catch(e){}
+  if(p.audio){p.audio.srcObject=null;p.audio.remove()}
+  delete VOICE.peers[u];
+}
+function voiceMute(){
+  if(!VOICE.on)return;
+  VOICE.muted=!VOICE.muted;VOICE.stream.getAudioTracks().forEach(t=>{t.enabled=!VOICE.muted});
+  NET.db.doc(`tables/${NET.code}/voice/${NET.uid}`).update({muted:VOICE.muted}).catch(()=>{});
+  render();
+}
+function voiceLeave(){
+  if(!VOICE.on)return;
+  VOICE.on=false;
+  if(VOICE.unsubV){VOICE.unsubV();VOICE.unsubV=null}
+  Object.keys(VOICE.peers).forEach(dropPeer);VOICE.present={};
+  if(VOICE.stream){VOICE.stream.getTracks().forEach(t=>t.stop());VOICE.stream=null}
+  if(NET.db&&NET.code)NET.db.doc(`tables/${NET.code}/voice/${NET.uid}`).delete().catch(()=>{});
+  render();
+}
+addEventListener('pagehide',()=>voiceLeave());
+// a small mic beside each name: gold when talking is open, grey when muted, faint while still connecting
+function micHTML(p){
+  if(!VOICE.on||!G||!G.seats)return '';
+  const u=G.seats[p];if(!u)return '';
+  if(u===NET.uid)return MIC_SVG.replace('class="mic"',`class="mic ${VOICE.muted?'off':''}"`);
+  const v=VOICE.present[u];if(!v)return '';
+  const st=VOICE.peers[u]&&VOICE.peers[u].pc.connectionState;
+  return MIC_SVG.replace('class="mic"',`class="mic ${v.muted?'off':st==='connected'?'':'wait'}"`);
+}
+
+function cardName(c){return isJoker(c)?(c.r==='BJ'?'الجوكر الكبير':'الجوكر الصغير'):c.r+' '+SUIT_AR[c.s]}
+
+function endRound(){
+  const bt=team(G.buyer),ot=1-bt,n=G.bid.n,res=[0,0];
+  let made;
+  if(G.bound){made=G.tricks[bt]===TRICKS;res[made?bt:ot]=BOUND}
+  else{made=G.tricks[bt]>=n;if(made)res[bt]=n;else res[ot]=n*2}
+  G.scores[0]+=res[0];G.scores[1]+=res[1];
+  G.summary={res,made,n,bound:G.bound,early:G.tricks[0]+G.tricks[1]<TRICKS};
+  G.phase=(G.scores[0]>=TARGET||G.scores[1]>=TARGET)&&G.scores[0]!==G.scores[1]?'over':'roundEnd';
+  advance();
+}
+function nextRound(){G.dealer=next(G.dealer);startRound()}
+// the verdict is worded from the viewer's side of the table
+function verdictText(){
+  const s=G.summary;
+  if(s.kashf){const k=s.kashf,ours=k.t===team(viewSeat());
+    if(!k.foul)return `${esc(nameOf(k.caller))} طلب كشف على ${esc(nameOf(k.accused))}، وما طلعت عنده أي ورقة غلط. يتسجل ${k.pts} ${ours?'لهم':'لكم'}.`;
+    return `${esc(nameOf(k.caller))} طلب كشف على ${esc(nameOf(k.accused))}، وطلعت عنده ورقة غلط: ${cardName(k.foul.c)} في الأكلة ${AR_NUM[k.foul.trick]||k.foul.trick}. يتسجل ${k.pts} ${ours?'لكم':'لهم'}.`}
+  const mine=team(G.buyer)===team(viewSeat());
+  const who=mine?'فريقك':'الخصم',to=mine?'لهم':'لكم';
+  if(s.bound)return s.made?`${who} جاب الباوند — كل الأكلات! تتسجل ${BOUND}`:`${who} ما جاب الباوند — تتسجل ${BOUND} ${to}`;
+  return s.made?`${who} جاب ${AR_NUM[s.n]}${s.early?' وانتهت الجولة':''} — تتسجل ${AR_NUM[s.n]}`
+    :`${who} ما ${s.early?'يقدر يجيب':'جاب'} ${AR_NUM[s.n]} — يتسجل الضعف (${s.n*2}) ${to}`;
+}
+
+/* ---------- shared table (db) ---------- */
+function commit(){
+  if(!NET.on||!G)return;
+  const json=JSON.stringify(G);if(json===NET.lastJson)return;
+  NET.rev++;NET.lastJson=json;NET.updatedAt=Date.now();
+  const body={stateJson:json,rev:NET.rev,updatedAt:NET.updatedAt,phase:'game'};
+  NET.chain=NET.chain.then(()=>NET.ref.update(body)).catch(netError);
+}
+function netError(e){
+  NET.err=e&&e.code==='invalid_argument'?'ما قدرنا نحفظ حركتك: ما عندك صلاحية تلعب في هالطاولة.'
+    :e&&e.code==='quota_exceeded'?'الطاولات امتلت. اطلب من صاحب اللعبة يفضّي مكان.'
+    :'انقطع الاتصال بالطاولة. حدّث الصفحة وارجع للطاولة.';
+  render();
+}
+// two homes for the shared table: claude.ai's own store, or Firebase when the page is served from our own site
+async function initNet(){
+  const C=window.claude;
+  if(C&&C.use){
+    NET.mode='claude';
+    try{
+      const [db,user]=await Promise.all([C.use('db'),C.use('user')]);
+      NET.db=db;NET.user=user;
+      if(user){NET.uid=await user.id();NET.canWrite=await user.can('data.write')}
+    }catch(e){}
+  }else if(window.FIREBASE_CONFIG){
+    NET.mode='fb';
+    try{
+      await loadFirebase();
+      firebase.initializeApp(window.FIREBASE_CONFIG);
+      const cred=await firebase.auth().signInAnonymously();
+      NET.uid=cred.user.uid;NET.canWrite=true;
+      NET.db=firebaseDB(firebase.firestore());
+      NET.user={profiles:async ids=>Object.fromEntries([].concat(ids).map(i=>[i,{id:i,name:names[i]||''}]))};
+    }catch(e){NET.db=null;NET.fbErr='ما قدرنا نوصل لخدمة اللعب مع الربع. حدّث الصفحة وجرّب مرة ثانية.'}
+  }
+  NET.ready=true;render();
+  const h=(location.hash||'').slice(1).toUpperCase();
+  if(/^[A-Z0-9]{4}$/.test(h)&&NET.db&&NET.uid&&!G){if(NET.mode==='fb'&&!myName()){ui.prefill=h;render()}else joinTable(h)}
+}
+const onlineOK=()=>!!(NET.db&&NET.uid);
+function loadScript(src){return new Promise((ok,fail)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=fail;document.head.appendChild(s)})}
+async function loadFirebase(){
+  const b=`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
+  await loadScript(b+'firebase-app-compat.js');
+  await Promise.all([loadScript(b+'firebase-auth-compat.js'),loadScript(b+'firebase-firestore-compat.js')]);
+}
+// Firestore behind the same small surface the game uses on claude.ai: doc/collection, get/set/update, onSnapshot, acquire
+function firebaseDB(fs){
+  const err=e=>({code:e&&e.code==='permission-denied'?'invalid_argument':'unavailable',message:e&&e.message||''});
+  const wrap=s=>({id:s.id,exists:s.exists,data:()=>s.data(),metadata:{hasPendingWrites:s.metadata.hasPendingWrites,fromCache:s.metadata.fromCache}});
+  const doc=path=>{const r=fs.doc(path);return {id:r.id,path,
+    get:()=>r.get().then(wrap,e=>{throw err(e)}),
+    set:d=>r.set(d).catch(e=>{throw err(e)}),
+    update:d=>r.update(d).catch(e=>{throw err(e)}),
+    delete:()=>r.delete().catch(e=>{throw err(e)}),
+    onSnapshot:(next,fail)=>r.onSnapshot(s=>next(wrap(s)),e=>fail&&fail(err(e))),
+    // a short lease kept in the document itself, taken inside a transaction
+    acquire:({holder,ttlMs})=>fs.runTransaction(async tx=>{
+      const s=await tx.get(r),l=s.exists&&s.data()._lease;
+      if(l&&l.until>Date.now()&&l.h!==holder)return {acquired:false};
+      tx.set(r,{_lease:{h:holder,until:Date.now()+(ttlMs||30000)}},{merge:true});
+      return {acquired:true};
+    }).catch(()=>({acquired:false}))}};
+  const collection=path=>{const c=fs.collection(path);return {path,doc:id=>doc(path+'/'+id),
+    onSnapshot:(next,fail)=>c.onSnapshot(qs=>next({docs:qs.docs.map(wrap),size:qs.size,empty:qs.empty,
+      docChanges:()=>qs.docChanges().map(ch=>({type:ch.type,doc:wrap(ch.doc)}))}),e=>fail&&fail(err(e)))}};
+  return {doc,collection};
+}
+// on our own site there are no accounts: each player types a name once
+const myName=()=>(store.get('playerName')||'').trim();
+function needName(){
+  if(NET.mode!=='fb')return false;
+  const el=document.getElementById('pname'),v=(el?el.value:myName()).trim().slice(0,16);
+  if(!v){ui.joinErr='اكتب اسمك أول.';render();return true}
+  store.set('playerName',v);return false;
+}
+function genCode(){let s='';for(let i=0;i<4;i++)s+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];return s}
+async function createTable(n){
+  ui.busy=true;ui.joinErr='';render();
+  try{
+    let code=genCode();
+    for(let i=0;i<3&&(await NET.db.doc('tables/'+code).get()).exists;i++)code=genCode();
+    await NET.db.doc('tables/'+code).set({host:NET.uid,phase:'lobby',n,rev:0,stateJson:'',updatedAt:Date.now()});
+    attach(code);
+    await claimSeat(0);
+  }catch(e){ui.joinErr=e&&e.code==='invalid_argument'?'ما عندك صلاحية تسوي طاولة هنا.':'ما قدرنا نسوي الطاولة. جرّب مرة ثانية.'}
+  ui.busy=false;render();
+}
+async function joinTable(code){
+  code=(code||'').trim().toUpperCase();
+  if(!/^[A-Z0-9]{4}$/.test(code)){ui.joinErr='الكود ٤ حروف أو أرقام.';return render()}
+  ui.busy=true;ui.joinErr='';render();
+  try{
+    const s=await NET.db.doc('tables/'+code).get();
+    if(!s.exists)ui.joinErr='ما لقيت طاولة بهالكود.';
+    else if((s.data().kicked||[]).includes(NET.uid))ui.joinErr='صاحب الطاولة طردك من هالطاولة.';
+    else attach(code);
+  }catch(e){ui.joinErr='ما قدرنا نوصل للطاولة. جرّب مرة ثانية.'}
+  ui.busy=false;render();
+}
+function attach(code){
+  detach();
+  clearTimeout(timer);G=null;
+  Object.assign(NET,{on:true,code,ref:NET.db.doc('tables/'+code),rev:0,lastJson:'',err:'',phase:null,n:4,seatDocs:[null,null,null,null,null,null]});
+  store.set('tableCode',code);ui.screen=null;
+  NET.unsubT=NET.ref.onSnapshot(onTable,netError);
+  NET.unsubS=NET.db.collection('tables/'+code+'/seats').onSnapshot(qs=>{
+    NET.seatDocs=[0,1,2,3,4,5].map(i=>{const d=qs.docs.find(x=>x.id==='s'+i);return d&&d.exists?(d.data().uid||null):null});
+    if(NET.mode==='fb')for(const d of qs.docs){const v=d.data()||{};if(v.uid&&v.name)names[v.uid]=String(v.name).slice(0,16)}
+    refreshNames();render();
+  },netError);
+  let first=true;
+  unsubP=NET.db.collection('tables/'+code+'/says').onSnapshot(qs=>{
+    if(first){first=false;return}
+    for(const ch of qs.docChanges()){
+      if(ch.type==='removed')continue;
+      const p=+ch.doc.id.slice(1),d=ch.doc.data()||{};
+      if(p!==me())showPhrase(p,d.i);
+    }
+    render();
+  },()=>{});
+}
+function detach(){
+  voiceLeave();
+  if(NET.unsubT)NET.unsubT();if(NET.unsubS)NET.unsubS();if(unsubP){unsubP();unsubP=null}phr=[null,null,null,null,null,null];
+  Object.assign(NET,{on:false,code:null,ref:null,unsubT:null,unsubS:null,host:null,phase:null});
+}
+function onTable(snap){
+  if(!snap.exists){NET.err='الطاولة انحذفت.';return render()}
+  const d=snap.data();
+  NET.host=d.host;NET.phase=d.phase;NET.updatedAt=d.updatedAt||0;NET.n=d.n===6?6:4;NET.kicked=d.kicked||[];
+  if(NET.kicked.includes(NET.uid)){kickedOut();return}
+  if(d.phase==='game'&&d.stateJson&&(d.rev>NET.rev||(d.rev===NET.rev&&d.stateJson!==NET.lastJson))){
+    const prevLen=G&&G.trick?G.trick.length:0;
+    NET.rev=d.rev;NET.lastJson=d.stateJson;G=JSON.parse(d.stateJson);
+    justPlayed=G.trick.length>prevLen?id(G.trick[G.trick.length-1].c):null;
+    localMsg='';refreshNames();
+  }
+  render();
+  if(G)drive();
+}
+async function claimSeat(i){
+  const ref=NET.db.doc(`tables/${NET.code}/seats/s${i}`);
+  try{
+    const lease=await ref.acquire({holder:NET.uid,ttlMs:4000});
+    if(!lease.acquired)return false;
+    const s=await ref.get();
+    if(s.exists&&s.data().uid&&s.data().uid!==NET.uid)return false;
+    if((NET.kicked||[]).includes(NET.uid))return false;
+    const mine=NET.seatDocs.indexOf(NET.uid);
+    if(mine>=0&&mine!==i)await NET.db.doc(`tables/${NET.code}/seats/s${mine}`).set({uid:null});
+    await ref.set(NET.mode==='fb'?{uid:NET.uid,name:myName()}:{uid:NET.uid});
+    return true;
+  }catch(e){netError(e);return false}
+}
+// leaving mid-game hands your chair to the computer; if you were running the table, another player takes that over
+async function exitGame(){
+  ui.exitAsk=false;
+  if(!NET.on){clearTimeout(timer);G=null;ui.screen='home';return render()}
+  const m=me();
+  if(G&&m>=0&&G.phase!=='over'){
+    const others=G.seats.filter((u,i)=>u&&i!==m);
+    if(NET.host===NET.uid&&others.length){try{await NET.ref.update({host:others[0]});NET.host=others[0]}catch(e){}}
+    clearTimeout(timer);G.seats[m]=null;commit();
+    try{await NET.chain}catch(e){}
+  }
+  leaveTable();
+}
+/* ---------- the host runs the table: they can kick any player, whose chair goes to the computer ---------- */
+const isHost=()=>NET.on&&NET.host===NET.uid;
+async function kickPlayer(u){
+  ui.kickArm=null;
+  if(!isHost()||!u||u===NET.uid)return render();
+  try{await NET.ref.update({kicked:[...new Set([...(NET.kicked||[]),u])]})}catch(e){return netError(e)}
+  const i=NET.seatDocs.indexOf(u);
+  if(NET.phase==='lobby'&&i>=0){try{await NET.db.doc(`tables/${NET.code}/seats/s${i}`).set({uid:null})}catch(e){}}
+  if(G&&G.seats){const p=G.seats.indexOf(u);if(p>=0){G.seats[p]=null;return advance()}}
+  render();
+}
+function kickedOut(){
+  detach();clearTimeout(timer);G=null;store.set('tableCode',null);
+  Object.assign(ui,{screen:'home',joinErr:'صاحب الطاولة طردك من الطاولة.',showPlayers:false,exitAsk:false});
+  render();
+}
+function playersHTML(){
+  const rows=G.seats.map((u,p)=>{
+    if(!u)return `<div class="seatrow"><span class="sn">${esc(nameOf(p))}<small>فريق ${p%2?'ب':'أ'}</small></span><span class="occ empty">كمبيوتر</span></div>`;
+    const btn=u===NET.uid?'<span class="occ empty">المضيف</span>':ui.kickArm===u
+      ?`<button class="bid kick" type="button" data-kick="${esc(u)}">متأكد؟ اطرد</button>`
+      :`<button class="bid pass" type="button" data-kickarm="${esc(u)}">اطرد</button>`;
+    return `<div class="seatrow ${u===NET.uid?'mine':''}"><span class="sn">${esc(nameOf(p))}<small>فريق ${p%2?'ب':'أ'}</small></span><span class="occ">${u===NET.uid?'':'لاعب'}</span>${btn}</div>`;
+  }).join('');
+  return `<div class="modal" data-close="players"><div class="sheet"><h2>اللاعبين</h2>
+    <p>أنت المضيف. إذا طردت لاعب، الكمبيوتر يلعب مكانه، وما يقدر يرجع لهالطاولة.</p>
+    <div class="seats">${rows}</div>
+    <button class="primary" type="button" data-close="players">تمام</button></div></div>`;
+}
+async function leaveTable(){
+  const mine=NET.seatDocs.indexOf(NET.uid);
+  if(NET.phase==='lobby'&&mine>=0){try{await NET.db.doc(`tables/${NET.code}/seats/s${mine}`).set({uid:null})}catch(e){}}
+  detach();clearTimeout(timer);G=null;store.set('tableCode',null);ui.screen='home';render();
+}
+function startOnline(){
+  if(NET.host!==NET.uid||NET.phase!=='lobby')return;
+  NET.phase='game';newGame(NET.seatDocs.slice(0,NET.n),NET.n);
+}
+// taking over also hands the departed host's chair to the computer
+async function takeOver(){
+  const old=G.seats.indexOf(NET.host);
+  try{await NET.ref.update({host:NET.uid});NET.host=NET.uid}catch(e){return netError(e)}
+  if(old>=0&&old!==me())G.seats[old]=null;
+  advance();
+}
+// the host can let the computer play for someone who went quiet
+function replaceSeat(p){
+  if(!amDriver()||!G.seats[p]||p===me())return;
+  G.seats[p]=null;advance();
+}
+function actorSeat(){
+  const ph=G.phase;
+  return ph==='bid'?G.bidTurn:ph==='trump'?G.bid.p:ph==='boundAsk'?G.buyer:ph==='play'&&G.trick.length<N()?G.turn:-1;
+}
+function humanStalled(){
+  if(!NET.on||!G||!amDriver())return -1;
+  const a=actorSeat();
+  return a>=0&&a!==me()&&!isAI(a)&&Date.now()-NET.updatedAt>40000?a:-1;
+}
+function refreshNames(){
+  if(!NET.user)return;
+  const ids=[...new Set([...NET.seatDocs,...(G&&G.seats||[])].filter(Boolean))];
+  if(!ids.length)return;
+  NET.user.profiles(ids).then(ps=>{
+    let ch=false;
+    for(const u of ids){const n=(ps[u]&&ps[u].name)||'';if(names[u]!==n){names[u]=n;ch=true}}
+    if(ch)render();
+  });
+}
+// the host's page drives computer seats; if it goes quiet, a seated player can take over
+function hostStalled(){
+  if(!NET.on||!G||amDriver()||me()<0)return false;
+  const ph=G.phase,waitsOnHost=ph==='roundEnd'||ph==='over'||ph==='redeal'
+    ||(ph==='bid'&&isAI(G.bidTurn))||(ph==='trump'&&isAI(G.bid.p))||(ph==='boundAsk'&&isAI(G.buyer))
+    ||(ph==='play'&&(G.trick.length===N()||isAI(G.turn)))
+    ||(actorSeat()>=0&&G.seats[actorSeat()]===NET.host);
+  return waitsOnHost&&Date.now()-NET.updatedAt>25000;
+}
+setInterval(()=>{if(NET.on&&G)render()},5000);
+
+/* ---------- render ---------- */
+function cardHTML(c,cls='',style=''){
+  if(isJoker(c)){const big=c.r==='BJ',dead=isDead(c);
+    return `<div class="card joker ${big?'red':''} ${dead?'dead':''} ${cls}" style="${style}" data-id="${id(c)}" aria-label="${big?'الجوكر الكبير':dead?'الجوكر الصغير (بيضة)':'الجوكر الصغير'}"><span class="ix">★<i>${big?'ك':'ص'}</i></span><span class="face jk">${dead?'بيضة':'جوكر<br>'+(big?'كبير':'صغير')}</span><span class="pip">★</span></div>`}
+  const f=FACE_AR[c.r]?`<span class="face">${FACE_AR[c.r]}</span>`:'';
+  return `<div class="card ${red(c)?'red':''} ${cls}" style="${style}" data-id="${id(c)}" aria-label="${c.r} ${SUIT_AR[c.s]}"><span class="ix">${c.r}<i>${SUIT_SYM[c.s]}</i></span>${f}<span class="pip">${SUIT_SYM[c.s]}</span></div>`;
+}
+function statusText(){
+  if(localMsg)return localMsg;
+  const m=me(),nm=nameOf;
+  switch(G.phase){
+    case 'bid':return G.bidTurn===m?'دورك في المزايدة':isAI(G.bidTurn)?nm(G.bidTurn)+' يفكّر…':'بانتظار '+nm(G.bidTurn)+' يزايد';
+    case 'trump':return G.bid.p===m?'اختر لون الحكم':nm(G.bid.p)+' يختار الحكم…';
+    case 'boundAsk':return G.buyer===m?'تبغى تشتري باوند؟ لازم تاخذون كل الأكلات':nm(G.buyer)+' يفكّر في الباوند…';
+    case 'play':if(G.trick.length===N())return '';return G.turn===m?'دورك — العب ورقة':isAI(G.turn)?'':'دور '+nm(G.turn);
+    case 'redeal':return 'الكل قال طاف — توزيع جديد';
+  }
+  return '';
+}
+function render(){
+  const U=G?team(viewSeat()):0,O=1-U,vs=viewSeat();
+  const sc=G?G.scores:[0,0];
+  document.getElementById('scUs').textContent=sc[U];
+  document.getElementById('scThem').textContent=sc[O];
+  document.getElementById('mUs').style.width=Math.min(100,sc[U]/TARGET*100)+'%';
+  document.getElementById('mThem').style.width=Math.min(100,sc[O]/TARGET*100)+'%';
+  const list=t=>seatsOf().filter(q=>team(q)===t).map(nameOf).join(' و');
+  document.getElementById('nUs').textContent=G?list(U):'أنت وربيعك';
+  document.getElementById('nThem').textContent=G?list(O):'الخصم';
+  const table=document.getElementById('table'),bar=document.getElementById('bar'),hand=document.getElementById('hand');
+
+  if(!G){
+    document.getElementById('info').innerHTML=NET.on?`<span class="chip mode">طاولة ${esc(NET.code)}</span>`:'';
+    table.className='table';table.innerHTML='<div class="pit"><span class="mark">الميدان</span></div>';
+    bar.innerHTML=`<div class="status">${NET.err?esc(NET.err):NET.on?'بانتظار بداية اللعب…':'&nbsp;'}</div>`;
+    hand.className='hand';hand.innerHTML='';
+    return renderModal();
+  }
+
+  const info=[];
+  if(NET.on)info.push(`<span class="chip">طاولة ${esc(NET.code)}</span>`);
+  info.push(`<span class="chip">الجولة ${G.round}</span>`);
+  if(G.trump)info.push(`<span class="chip mode">${contract()}</span>`,`<span class="chip">المشتري: ${esc(nameOf(G.buyer))}</span>`,`<span class="chip">أكلات لنا ${G.tricks[U]} · لهم ${G.tricks[O]}</span>`);
+  else{
+    info.push(`<span class="chip">الموزّع: ${esc(nameOf(G.dealer))}</span>`);
+    info.push(G.bid.p>=0?`<span class="chip mode">أعلى طلب: ${AR_NUM[G.bid.n]} (${esc(nameOf(G.bid.p))})</span>`:`<span class="chip">الفوز عند ${TARGET} نقطة</span>`);
+  }
+  document.getElementById('info').innerHTML=info.join('');
+
+  // seats are drawn from the viewer's chair: you at the bottom, play running to your right
+  const n=G.n,V=p=>(p-vs+n)%n,m=me();
+  const active=actorSeat();
+  // each team's pile sits inside its owner's seat, beside the name, so it never covers a played card
+  const pileHTML=tm=>{const lab=tm===U?'لنا':'لهم';
+    return `<div class="pile in ${tm===U?'us':'them'}" aria-label="أكلات ${lab}"><div class="stack">${'<span></span>'.repeat(G.tricks[tm])}</div><b>${lab} ${G.tricks[tm]}</b></div>`};
+  const hasPile=p=>G.pileOwner[team(p)]===p&&G.tricks[team(p)]>0;
+  let t='';
+  for(const p of seatsOf()){
+    const v=V(p);
+    const tags=(p===G.buyer?'<span class="tag">مشتري</span>':'')+(p===G.dealer&&!G.trump?'<span class="tag">موزّع</span>':'')+(NET.on&&isAI(p)?'<span class="tag ai">كمبيوتر</span>':'')+(NET.on&&G.seats[p]&&G.seats[p]===NET.host?'<span class="tag">المضيف</span>':'');
+    const base=nameOf(p),label=p!==m&&m>=0&&team(p)===team(m)?base+' (ربيعك)':base;
+    const backs=v===0&&m>=0?'':`<div class="backs">${G.hands[p].map(()=>'<div class="back"></div>').join('')}</div>`;
+    const ph=phr[p]&&phr[p].until>Date.now()?PHRASES[phr[p].i]:'';
+    const bub=ph?`<div class="bubble say">${esc(ph)}</div>`:G.say[p]?`<div class="bubble">${esc(G.say[p])}</div>`:'';
+    const who=`<div class="who"><span class="avatar">${esc(base[0])}</span><span>${esc(label)}</span>${tags}${micHTML(p)}${v===0&&m>=0?'':`<span class="cnt">${G.hands[p].length}</span>`}</div>`;
+    const pile=hasPile(p)?pileHTML(team(p)):'';
+    t+=`<div class="seat s${v} ${team(p)===U?'us':'them'} ${active===p?'turn':''}">${v===0?bub+`<div class="s0row">${who}${pile}</div>`+(m<0?backs:''):v===n/2?`<div class="s0row">${who}${pile}</div>`+backs+bub:who+backs+bub+pile}</div>`;
+  }
+  t+=`<div class="pit ${G.sweepTo>=0?'sweep at'+V(G.sweepTo):''}">${G.trick.length?'':'<span class="mark">الميدان</span>'}`;
+  const wi=G.trick.length===n?winIdx(G.trick):-1;
+  G.trick.forEach((e,i)=>{t+=`<div class="slot p${V(e.p)}">${cardHTML(e.c,(id(e.c)===justPlayed?'in ':'')+(i===wi?'win':''))}</div>`});
+  t+='</div>';
+  table.className='table'+(n===6?' t6':'');table.innerHTML=t;
+
+  if(NET.err)bar.innerHTML=`<div class="status err">${esc(NET.err)}</div>`;
+  else if(hostStalled())bar.innerHTML=`<span class="status">صاحب الطاولة ما يرد.</span><button class="bid sun" type="button" data-act="takeover">كمّل اللعب من عندي</button>`;
+  else if(humanStalled()>=0)bar.innerHTML=`<span class="status">${esc(nameOf(humanStalled()))} ما يرد.</span><button class="bid sun" type="button" data-act="replace">خل الكمبيوتر يلعب بداله</button>`;
+  else if(G.phase==='bid'&&G.bidTurn===m){
+    bar.innerHTML=bidOptions().map(n=>`<button class="bid sun" type="button" data-bid="${n}">${AR_NUM[n]}</button>`).join('')
+      +`<button class="bid pass" type="button" data-bid="pass">طاف</button>`;
+  }else if(G.phase==='boundAsk'&&G.buyer===m){
+    bar.innerHTML=`<span class="status">باوند = كل الأكلات (${BOUND} نقطة)</span><button class="bid sun" type="button" data-bound="yes">باوند</button><button class="bid pass" type="button" data-bound="no">لا</button>`;
+  }else if(G.phase==='trump'&&G.bid.p===m){
+    bar.innerHTML='SHDC'.split('').map(s=>`<button class="bid ${s==='H'||s==='D'?'suit-red':''}" type="button" data-trump="${s}">حكم ${SUIT_SYM[s]}</button>`).join('');
+  }else bar.innerHTML=`<div class="status">${esc(statusText())||(m<0?'أنت تتفرّج على الطاولة':'&nbsp;')}</div>`;
+  if(m>=0&&(G.phase==='play'||G.phase==='boundAsk')&&!NET.err&&!hostStalled()){
+    bar.insertAdjacentHTML('beforeend',G.kashfUsed[team(m)]?'<span class="kashf used">استخدمتوا الكشف</span>'
+      :ui.kashfArm?'<span class="status">كشف على مين؟</span>'+seatsOf().filter(q=>team(q)!==team(m)).map(q=>`<button class="kashf arm" type="button" data-act="kashf" data-p="${q}">${esc(nameOf(q))}</button>`).join('')+'<button class="kashf" type="button" data-act="kashfNo">لا</button>'
+      :'<button class="kashf" type="button" data-act="kashfArm">كشف</button>');
+  }
+  if(m>=0&&voiceOK()){
+    bar.insertAdjacentHTML('beforeend',!VOICE.on?`<button class="phbtn voice" type="button" data-act="voiceOn">${MIC_SVG}صوت</button>`
+      :`<button class="phbtn voice ${VOICE.muted?'':'on'}" type="button" data-act="voiceMute" aria-pressed="${VOICE.muted}">${MIC_SVG}${VOICE.muted?'المايك مسكّر':'المايك مفتوح'}</button><button class="phbtn" type="button" data-act="voiceOff">اطلع من الصوت</button>`);
+    if(VOICE.err)bar.insertAdjacentHTML('beforeend',`<div class="status err" style="flex-basis:100%">${esc(VOICE.err)}</div>`);
+  }
+  if(m>=0){
+    bar.insertAdjacentHTML('beforeend',`<button class="phbtn ${ui.phrOpen?'on':''}" type="button" data-act="phr" aria-expanded="${!!ui.phrOpen}">عبارات</button>`
+      +(ui.phrOpen?`<div class="phrlist">${PHRASES.map((t,i)=>`<button type="button" data-phr="${i}">${t}</button>`).join('')}</div>`:''));
+  }
+
+  const myTurn=m>=0&&G.phase==='play'&&G.turn===m&&G.trick.length<n;
+  hand.className='hand'+(myTurn?' active':'');
+  if(m<0){hand.innerHTML='';return renderModal()}
+  const mid=(G.hands[m].length-1)/2;
+  hand.innerHTML=G.hands[m].map((c,i)=>cardHTML(c,'',`--r:${((i-mid)*2.6).toFixed(1)}deg;--y:${((i-mid)**2*1.4).toFixed(1)}px`)).join('');
+  if(myTurn)hand.querySelectorAll('.card').forEach(el=>el.tabIndex=0);
+  renderModal();
+}
+function homeHTML(){
+  const saved=store.get('tableCode');
+  let online;
+  if(!NET.ready)online='<p class="note">نجهّز اللعب مع الربع…</p>';
+  else if(!onlineOK())online=`<p class="note">${NET.fbErr||(NET.mode==='claude'?'اللعب مع الربع يشتغل لما تكون مسجّل دخول في claude.ai.':'اللعب مع الربع مو متاح في هالنسخة.')}</p>`;
+  else online=`${NET.mode==='fb'?`<div class="joinrow"><input id="pname" maxlength="16" placeholder="اسمك" autocomplete="nickname" aria-label="اسمك" value="${esc(myName())}"></div>`:''}${NET.canWrite===false?'<p class="note">عندك صلاحية مشاهدة بس، فتقدر تتفرّج وما تقدر تلعب. اطلب من صاحب اللعبة يعطيك صلاحية أعلى.</p>':''}
+    <div class="pair"><button class="primary alt" type="button" data-act="create4" ${ui.busy?'disabled':''}>طاولة ٤ لاعبين</button><button class="primary alt" type="button" data-act="create6" ${ui.busy?'disabled':''}>طاولة ٦ لاعبين</button></div>
+    <div class="joinrow"><input id="joinCode" maxlength="4" value="${esc(ui.prefill||'')}" placeholder="كود الطاولة" autocomplete="off" autocapitalize="characters" aria-label="كود الطاولة"><button class="bid" type="button" data-act="join" ${ui.busy?'disabled':''}>ادخل</button></div>
+    ${saved&&!NET.on?`<button class="ghost wide" type="button" data-act="rejoin">ارجع لطاولة ${esc(saved)}</button>`:''}
+    ${NET.on?`<button class="ghost wide" type="button" data-act="leave">اطلع من طاولة ${esc(NET.code)}</button>`:''}
+    ${ui.joinErr?`<p class="err">${esc(ui.joinErr)}</p>`:''}`;
+  return `<div class="modal"><div class="sheet home"><h2>أهلاً في فيها ولا فمصريها</h2>
+    <p>العب ضد الكمبيوتر، أو سوّ طاولة وادعُ ربعك يلعبون معك.</p>
+    <div class="pair"><button class="primary" type="button" data-act="solo4">ضد الكمبيوتر · ٤ لاعبين</button><button class="primary" type="button" data-act="solo6">ضد الكمبيوتر · ٦ لاعبين</button></div>
+    <div class="or"><span>مع الربع</span></div>${online}
+    ${G?'<button class="ghost wide" type="button" data-act="close">رجوع للعبة</button>':''}</div></div>`;
+}
+function lobbyHTML(){
+  const host=NET.host===NET.uid,mine=NET.seatDocs.indexOf(NET.uid);
+  const rows=[...Array(NET.n).keys()].map(i=>{
+    const u=NET.seatDocs[i],who=u?(u===NET.uid?'أنت':(names[u]||'لاعب')):'فاضي — يلعبه الكمبيوتر';
+    return `<div class="seatrow ${u===NET.uid?'mine':''}"><span class="sn">الكرسي ${AR_NUM[i+1]}<small>فريق ${i%2?'ب':'أ'}</small></span><span class="occ ${u?'':'empty'}">${esc(who)}</span>${!u&&NET.canWrite!==false?`<button class="bid pass" type="button" data-seat="${i}">اجلس هنا</button>`
+      :u&&u!==NET.uid&&host?(ui.kickArm===u?`<button class="bid kick" type="button" data-kick="${esc(u)}">متأكد؟ اطرد</button>`:`<button class="bid pass" type="button" data-kickarm="${esc(u)}">اطرد</button>`):''}</div>`;
+  }).join('');
+  return `<div class="modal"><div class="sheet"><h2>طاولة ${esc(NET.code)} · ${NET.n===6?'٦':'٤'} لاعبين</h2>
+    <p>أرسل الكود أو الرابط لربعك. ${NET.n===6?'الكراسي ١ و٣ و٥ فريق، و٢ و٤ و٦ فريق.':'الكرسي ١ و٣ فريق، و٢ و٤ فريق.'}</p>
+    <div class="codebox"><b>${esc(NET.code)}</b><button class="bid" type="button" data-act="copy">${ui.copied||'انسخ الرابط'}</button></div>
+    <p class="link" id="tableLink">${esc(shareURL())}</p>
+    <div class="seats">${rows}</div>
+    ${NET.err?`<p class="err">${esc(NET.err)}</p>`:''}
+    ${host?'<button class="primary" type="button" data-act="start">ابدأ اللعب</button><p class="note">الكراسي الفاضية يلعبها الكمبيوتر.</p>'
+      :`<p class="note">${mine<0?'اختر كرسي، وبعدين انتظر صاحب الطاولة يبدأ.':'بانتظار صاحب الطاولة يبدأ اللعب…'}</p>`}
+    <button class="ghost wide" type="button" data-act="leave">اطلع من الطاولة</button></div></div>`;
+}
+function renderModal(){
+  const m=document.getElementById('modal');
+  document.getElementById('btnExit').hidden=!(G||NET.on);
+  document.getElementById('btnPlayers').hidden=!(isHost()&&G);
+  if(ui.showPlayers&&isHost()&&G){m.innerHTML=playersHTML();return}
+  if(showTables){const cur=document.documentElement.dataset.table;
+    m.innerHTML=`<div class="modal" data-close="tables"><div class="sheet"><h2>اختر الطاولة</h2>
+    <div class="tables">${TABLES.map(t=>`<button type="button" class="tpick ${t.id===cur?'on':''}" data-table-pick="${t.id}" aria-pressed="${t.id===cur}"><i style="background:radial-gradient(110% 85% at 50% 45%,${t.c[0]},${t.c[1]});border:5px solid ${t.c[2]}"></i>${t.ar}</button>`).join('')}</div>
+    <button class="primary" type="button" data-close="tables">تمام</button></div></div>`;return}
+  if(showRules){m.innerHTML=`<div class="modal" data-close="rules"><div class="sheet rules">
+    <h2>قوانين اللعبة</h2>
+    <h3>الفريقين</h3><ul><li>تلعبون ٤ أو ٦. مع ٤: كل اثنين قاعدين مقابل بعض فريق. مع ٦: فريقين، كل فريق ٣، وكل لاعب قاعد بين اثنين من الخصم. اللعب يدور لليمين.</li><li>كل جولة تنحسب لها نقاط، وأول فريق يجمع ${TARGET} نقطة يفوز باللعبة.</li></ul>
+    <h3>المزايدة</h3><ul><li>مع ٤ لاعبين الورق ٣٦ ورقة: من ٧ إلى A في كل الألوان، وستة السبيت وستة الهاص، والجوكرين.</li><li>مع ٦ لاعبين الورق كامل: ٥٢ ورقة والجوكرين، يعني ٥٤.</li><li>في الحالتين كل لاعب ياخذ ٩ أوراق، والجولة ٩ أكلات.</li><li>المزايدة على عدد الأكلات من ٩، تبدأ من ${AR_NUM[MIN_BID]} وأعلى طلب ${AR_NUM[MAX_BID]}.</li><li>كل لاعب يتكلم مرة وحدة بس: يا يقول رقم أعلى من اللي قبله، يا يقول طاف. واللي طلب أعلى رقم هو المشتري، ويختار لون الحكم.</li><li>أول واحد يلعب هو اللي بعد المشتري. وإذا كان الطلب ٨، لازم يبدأ بالحكم، وإذا ما معه حكم يلعب أي شي.</li><li>إذا الكل قال طاف، تتوزع الأوراق من جديد.</li></ul>
+    <h3>اللعب</h3><ul><li>لازم تتبع لون أول ورقة في الميدان. إذا ما عندك اللون ترمي أي ورقة، وتقدر تدق بالحكم إذا تبغى.</li><li>اللعبة ما تمنعك تلعب ورقة غلط، بس انتبه من الكشف.</li><li>إذا انلعب حكم أول ورقة، تتبعه بأي حكم ومو لازم أعلى.</li><li>الترتيب العادي من الأعلى: A K Q J 10 9 8 7 6 5 4 3 2، والحكم ياكل باقي الألوان.</li></ul>
+    <h3>الجوكر</h3><ul><li>فيه جوكر كبير وجوكر صغير.</li><li>الكبير ياكل أي ورقة، والصغير ياكل كل شي إلا الكبير.</li><li>الجوكر الصغير ينلعب في أول ثلاث أكلات، حتى لو عندك اللون. وإذا ما لعبته، لازم تلعبه في الأكلة الثالثة.</li><li>انتبه لا تتورط وتبدأ الأكلة الثالثة والجوكر الصغير معك: إذا صار كذا، يصير الجوكر الصغير ورقة بيضة ما تاكل شي، وترميه متى ما تبغى.</li><li>الجوكر الكبير ما ينلعب إلا بعد ما ينزل الصغير أو يصير بيضة، وبعدها تقدر تلعبه في أي وقت.</li><li>الجوكر ما ينزل أول ورقة في الأكلة.</li><li>الجوكر يُحسب حكم.</li></ul>
+    <h3>الحساب</h3><ul><li>إذا جاب المشتري وربيعه عدد الأكلات اللي طلبوه أو أكثر، يتسجل لهم الرقم اللي طلبوه.</li><li>إذا ما جابوه، يتسجل ضعف الرقم للفريق الثاني.</li><li>الجولة تنتهي على طول أول ما يجيب المشتري طلبه، أو أول ما ياخذ الفريق الثاني أكلات تكفي عشان المشتري ما يقدر يجيبه.</li></ul>
+    <h3>الباوند</h3><ul><li>إذا باقي للمشتري أكلة وحدة عشان يجيب طلبه والخصم ما أخذ ولا أكلة، ينسأل المشتري إذا يبغى يشتري باوند. والباوند اختياري.</li><li>الباوند يعني لازم ياخذ هو وربيعه كل الأكلات التسع.</li><li>إذا جابه يتسجل له ${BOUND}، وإذا أخذ الخصم ولا أكلة تنتهي الجولة ويتسجل ${BOUND} للخصم.</li></ul>
+    <h3>الكشف</h3><ul><li>تقدر تلعب أي ورقة، حتى لو كانت غلط حسب القوانين.</li><li>كل فريق يقدر يطلب كشف مرة وحدة في الجولة، من زر "كشف"، ويحدد اللاعب اللي يظن إنه لعب غلط.</li><li>إذا طلعت ورقة غلط من نفس اللاعب في هالجولة، تنتهي الجولة ويتسجل لهم ضعف الطلب (أو ${BOUND} إذا كان باوند).</li><li>إذا ما طلع عند هذاك اللاعب شي، حتى لو غلط لاعب ثاني، تنتهي الجولة وتنحسب عليهم: يتسجل نفس الرقم للفريق الثاني.</li><li>الكمبيوتر ما يلعب غلط، ويطلب كشف لما يشوف دليل واضح، مثل لاعب قال ما عنده لون وبعدين لعب منه.</li></ul>
+    <h3>اللعب مع الربع</h3><ul><li>اللي يسوي الطاولة هو المضيف، وهو المدير: يقدر يطرد أي لاعب قبل اللعب أو في نصه من زر "اللاعبين". الكمبيوتر ياخذ كرسي المطرود، والمطرود ما يقدر يرجع لنفس الطاولة.</li><li>زر "عبارات" يطلّع لك كلام جاهز تقوله، ويطلع فوق اسمك عند كل اللاعبين.</li><li>في موقع اللعبة على GitHub فيه زر "صوت": اضغطه واسمح للمتصفح يستخدم المايك، وتسمعون بعض. وتقدر تسكّر المايك متى ما تبغى. علامة المايك جنب الاسم تبيّن مين معكم بالصوت.</li><li>من زر "القائمة" سوّ طاولة، وأرسل الكود أو الرابط لربعك. كل واحد يختار كرسي، والكراسي الفاضية يلعبها الكمبيوتر.</li><li>صفحة صاحب الطاولة هي اللي تشغّل الكمبيوتر، فخلها مفتوحة لين تخلصون. إذا طلع، يقدر أي لاعب يكمّل اللعب من عنده، والكمبيوتر ياخذ كرسيه.</li><li>إذا لاعب ما رد دقيقة تقريباً، يقدر صاحب الطاولة يخلي الكمبيوتر يلعب بداله.</li></ul>
+    <p></p><button class="primary" type="button" data-close="rules">تمام</button></div></div>`;return}
+  if(showLast&&G&&G.lastTrick){m.innerHTML=`<div class="modal" data-close="last"><div class="sheet"><h2>آخر أكلة</h2><p>أكلها ${esc(nameOf(G.lastTrick.winner))}</p>
+    <div class="lastTrick">${G.lastTrick.cards.map(e=>cardHTML(e.c,e.p===G.lastTrick.winner?'win':'')).join('')}</div>
+    <button class="primary" type="button" data-close="last">رجوع</button></div></div>`;return}
+  if(ui.exitAsk){
+    const online=NET.on&&G&&me()>=0&&G.phase!=='over';
+    m.innerHTML=`<div class="modal" data-close="exit"><div class="sheet"><h2>تطلع من اللعبة؟</h2>
+      <p>${online?'الكمبيوتر بيلعب مكانك لين تخلص اللعبة، وربعك يكمّلون عادي.':NET.on?'بتطلع من الطاولة.':'اللعبة الحالية بتنتهي، وترجع للقائمة.'}</p>
+      <div class="pair"><button class="primary danger" type="button" data-act="exitYes">إيه، اطلع</button><button class="primary alt" type="button" data-act="exitNo">لا، كمّل</button></div></div></div>`;
+    return}
+  if(ui.screen==='home'){m.innerHTML=homeHTML();return}
+  if(NET.on&&NET.phase==='lobby'&&!G){m.innerHTML=lobbyHTML();return}
+  if(G&&(G.phase==='roundEnd'||G.phase==='over')&&G.summary){
+    const s=G.summary,over=G.phase==='over',bt=team(G.buyer),U=team(viewSeat()),O=1-U;
+    const head=over?(G.scores[U]>G.scores[O]?'فزتوا باللعبة!':'خسرتوا اللعبة'):'نتيجة الجولة';
+    const btn=amDriver()?`<button class="primary" type="button" id="${over?'btnNew':'btnNext'}">${over?'لعبة جديدة':'الجولة التالية'}</button>`
+      :`<p class="note">بانتظار صاحب الطاولة ${over?'يبدأ لعبة جديدة':'يبدأ الجولة التالية'}…</p>`;
+    m.innerHTML=`<div class="modal"><div class="sheet"><h2>${head}</h2><p class="verdict">${verdictText()}</p>
+      ${s.kashf&&s.kashf.foul?`<div class="lastTrick">${cardHTML(s.kashf.foul.c,'win')}</div>`:''}
+      <table class="res"><tr><th></th><th>لنا</th><th>لهم</th></tr>
+      <tr><td>الطلب</td><td>${bt===U?contract():'—'}</td><td>${bt===O?contract():'—'}</td></tr>
+      <tr><td>الأكلات</td><td>${G.tricks[U]}</td><td>${G.tricks[O]}</td></tr>
+      <tr class="sum"><td>حصيلة الجولة</td><td>${s.res[U]}</td><td>${s.res[O]}</td></tr>
+      <tr class="total"><td>المجموع</td><td>${G.scores[U]}</td><td>${G.scores[O]}</td></tr></table>
+      ${btn}</div></div>`;
+    return;
+  }
+  m.innerHTML='';
+}
+
+/* ---------- input ---------- */
+document.getElementById('bar').addEventListener('click',e=>{
+  if(!G)return;
+  const m=me();
+  if(e.target.closest('[data-act="takeover"]'))return takeOver();
+  if(e.target.closest('[data-act="replace"]'))return replaceSeat(humanStalled());
+  const va=e.target.closest('[data-act^="voice"]')?.dataset.act;
+  if(va==='voiceOn')return voiceJoin();
+  if(va==='voiceMute')return voiceMute();
+  if(va==='voiceOff')return voiceLeave();
+  if(e.target.closest('[data-act="phr"]')){ui.phrOpen=!ui.phrOpen;return render()}
+  const ph=e.target.closest('[data-phr]');if(ph)return sayPhrase(+ph.dataset.phr);
+  const k=e.target.closest('[data-act^="kashf"]')?.dataset.act;
+  if(k){ui.kashfArm=k==='kashfArm';if(k==='kashf')return callKashf(team(m),m,+e.target.closest('[data-p]').dataset.p);return render()}
+  const b=e.target.closest('[data-bid]');if(b)return doBid(m,b.dataset.bid==='pass'?'pass':+b.dataset.bid);
+  const t=e.target.closest('[data-trump]');if(t&&G.bid.p===m)return setTrump(t.dataset.trump);
+  const bd=e.target.closest('[data-bound]');if(bd)decideBound(m,bd.dataset.bound==='yes');
+});
+// any card can be played; a wrong one is only caught by الكشف
+function humanPlay(el){
+  if(!el||!document.getElementById('hand').classList.contains('active'))return;
+  const m=me(),c=G.hands[m].find(x=>id(x)===el.dataset.id);if(c)playCard(m,c);
+}
+document.getElementById('hand').addEventListener('click',e=>{
+  const el=e.target.closest('.card');if(!el||!G)return;
+  humanPlay(el);
+});
+document.getElementById('hand').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.target.closest('.card')?.click()}});
+document.getElementById('modal').addEventListener('click',e=>{
+  if(e.target.id==='btnNext')return nextRound();
+  if(e.target.id==='btnNew')return newGame(G.seats,G.n);
+  const act=e.target.closest('[data-act]')?.dataset.act;
+  if(act==='solo4'||act==='solo6'){if(NET.on)detach();ui.screen=null;clearTimeout(timer);G=null;return newGame(null,act==='solo6'?6:4)}
+  if(act==='close'){ui.screen=null;return render()}
+  if(act==='create4'||act==='create6'){if(needName())return;return createTable(act==='create6'?6:4)}
+  if(act==='join'){if(needName())return;return joinTable(document.getElementById('joinCode')?.value)}
+  if(act==='rejoin'){if(needName())return;return joinTable(store.get('tableCode'))}
+  if(act==='leave')return leaveTable();
+  if(act==='exitYes')return exitGame();
+  if(act==='exitNo'){ui.exitAsk=false;return renderModal()}
+  const ka=e.target.closest('[data-kickarm]');if(ka){ui.kickArm=ka.dataset.kickarm;return renderModal()}
+  const kk=e.target.closest('[data-kick]');if(kk)return kickPlayer(kk.dataset.kick);
+  if(act==='start')return startOnline();
+  if(act==='copy'){
+    const link=shareURL();
+    const done=()=>{ui.copied='انتسخ';render();setTimeout(()=>{ui.copied='';render()},1800)};
+    try{navigator.clipboard.writeText(link).then(done,()=>selectLink())}catch(err){selectLink()}
+    return;
+  }
+  const seat=e.target.closest('[data-seat]');if(seat)return claimSeat(+seat.dataset.seat);
+  const tp=e.target.closest('[data-table-pick]');if(tp){applyTable(tp.dataset.tablePick);return renderModal()}
+  const c=e.target.closest('[data-close]');
+  if(c&&(e.target===c||e.target.tagName==='BUTTON')){showRules=false;showLast=false;showTables=false;ui.exitAsk=false;ui.showPlayers=false;ui.kickArm=null;renderModal()}
+});
+document.getElementById('modal').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='joinCode')joinTable(e.target.value)});
+function selectLink(){const el=document.getElementById('tableLink');if(!el)return;const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r)}
+document.getElementById('btnRules').addEventListener('click',()=>{showRules=true;renderModal()});
+document.getElementById('btnTable').addEventListener('click',()=>{showTables=true;renderModal()});
+document.getElementById('btnLast').addEventListener('click',()=>{if(G&&G.lastTrick){showLast=true;renderModal()}});
+document.getElementById('btnHome').addEventListener('click',()=>{ui.screen='home';ui.joinErr='';renderModal()});
+document.getElementById('btnExit').addEventListener('click',()=>{ui.exitAsk=true;renderModal()});
+document.getElementById('btnPlayers').addEventListener('click',()=>{ui.showPlayers=true;ui.kickArm=null;renderModal()});
+
+/* ---------- boot ---------- */
+function boot(data){
+  if(data&&data.G&&data.G.v===STATE_V){G=data.G;ui.screen=null;render();drive()}
+  else render();
+  initNet();
+}
+try{window.claude?.hot?.snapshot?.(()=>NET.on?{}:{G})}catch(e){}
+window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
+</script>
+
+</body>
+</html>
